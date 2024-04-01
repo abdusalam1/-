@@ -37,17 +37,19 @@ reserved = {
     'char': 'CHAR',
     'true': 'TRUE',
     'false': 'FALSE',
-    'div': 'MULOP',
+}
+reserved_2={
+      'div': 'MULOP',
     'mod': 'MULOP',
     'and': 'MULOP',
     'or': 'ADDOP',
 }
 
-tokens = ['DIGITS','NUM','LETTERS','RELOP','ADDOP','MULOP','ID','ASSIGNOP','COMMENT','DOT'
+tokens = ['DIGITS','NUM','LETTERS','RELOP','ADDOP','MULOP','ID','ASSIGNOP','COMMENT','DOT','COLON','LBRACKET','RBRACKET','LPAREN','RPAREN',
+          'COM','POINT','SEMICOLON','EQUAL'
           ] + list(reserved.values())
 
-literals = [';', '.', '(', ')', ',', ':', '[', ']','=']
-
+t_EQUAL=r'='
 t_COLON = r':'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
@@ -58,15 +60,51 @@ t_POINT = r'\.'
 t_DOT=r'\.\.'
 t_SEMICOLON = r';'
 t_ASSIGNOP=r':='
-t_LETTERS = r'\'[a-zA-Z]\''
 t_RELOP = r'<=|>=|<>|<|>'
-t_ADDOP = r'(?i)\+|-|OR'
-t_MULOP = r'(?i)\*|\/|DIV|MOD|AND'
+t_ADDOP = r'(?i)\+|-'
+t_MULOP = r'(?i)\*|\/'
 t_DIGITS=r'\d+'
+def t_LETTERS(t):
+        r'\'[^\']*\'*'
+        t.value=t.value[1:] if len(t.value)!=1 else 'eof' #获取引号内内容
+        if t.value[-1]!='\'' or t.value=='eof': #引号未关闭
+            error.append({
+                  "code": "A-05",
+                        "info": {
+                            "line": t.lineno,
+                            "value": ['Letter_Eof'],
+                            "lexpos": t.lexpos
+            }})
+            t.value=t.value[0] #取第一个字符为值
+        elif t.value=='\'': #字符常量为空
+            error.append({
+                  "code": "A-06",
+                        "info": {
+                            "line": t.lineno,
+                            "value": ['Letter_Empty'],
+                            "lexpos": t.lexpos
+            }})
+            t.value="\0" #取"\0"为值
+        elif '\n'in t.value:#字符常量先遇见换行符而非引号
+            error.append({
+                  "code": "A-07",
+                        "info": {
+                            "line": t.lineno,
+                            "value": ['Letter_newline'],
+                            "lexpos": t.lexpos
+            }})
+            index=t.value.find('\n')
+            t.lexer.skip(index-len(t.value)) #前进至换行符前
+            t.value=t.value[0] if t.value[0]!='\n' else "\0" #错误恢复,取第一个字符或"\0"为值
+        else:
+            t.value=t.value[:-1]
+        return t
 
+      
 def t_ID(t):
     r'[0-9a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value,'ID')    # Check for reserved words
+    t.type = dict(reserved, **reserved_2).get(t.value,'ID')    # Check for reserved words
+
     if t.value.isdigit():
              t.type='DIGITS'
     if(t.type=='ID'):
@@ -94,8 +132,17 @@ def t_ID(t):
     return t
 
 def t_COMMENT(t):
-    r'\{[^{}]*\}|//.*'
+    r'\{[^{}]*\}*'
     t.lexer.lineno += t.value.count('\n')
+    if t.value[-1]!='}':
+        error.append({
+                  "code": "A-08",
+                    "info": {
+                        "line": t.lineno,
+                        "value": ['Comment_Eof'],
+                        "lexpos": t.lexpos
+            }})   
+        t.lexer.skip(t.value.find('\n')-len(t.value))
     pass
     # No return value. Token discarded
 
@@ -136,8 +183,9 @@ def Lexical(filename):
     lexer = lex.lex()
     filename = filename + ".pas"
     data = '''
-     type 1aaaaaaaaaaaaaaaaaaaaa=1.2;
-     a='ab'
+    const {vfsab
+          b='
+          c='a
 '''
     # Give the lexer some input
     lexer.input(data)
@@ -151,6 +199,13 @@ def Lexical(filename):
             if find_column(data, tok)  < 1000:
                 ans.append(tok)
             else:
+                error.append({
+                      "code": "A-02",
+                    "info": {
+                        "line": 0,
+                        "value": ["代码行长度过长"],
+                        "lexpos": 0}
+                        })
                 exit()
 
 error=[]
