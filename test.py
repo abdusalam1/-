@@ -39,7 +39,7 @@ reserved = {
 tokens = ['DIGITS','NUM','LETTERS','RELOP','ADDOP','MULOP','ID','ASSIGNOP','COMMENT','DOT'
           ] + list(reserved.values())
 
-literals = [';', '.', '(', ')', ',', ':', '[', ']', '\'']
+literals = [';', '.', '(', ')', ',', ':', '[', ']', '\'', '=']
 
 def t_DOT(t):
     r'\.\.'
@@ -63,15 +63,15 @@ def t_LETTERS(t):
     return t
 
 def t_RELOP(t):
-    r'>=|<=|<>|<|>|='
+    r'>=|<=|<>|<|>'
     return t
 
 def t_ADDOP(t):
-    r'\+|-|or'
+    r'\+|-'
     return t
 
 def t_MULOP(t):
-    r'\*|/|and|div|mod'
+    r'\*|/'
     return t
 
 def t_COMMENT(t):
@@ -79,7 +79,7 @@ def t_COMMENT(t):
     pass
     # No return value. Token discarded
 
-# Define a rule so we can track line numbers
+# Define a rule so we can track line numbers while finding the error 101
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
@@ -87,7 +87,7 @@ def t_newline(t):
 # Compute column.
 # input is the input text string
 # token is a token instance
-def find_column(input,token):
+def find_column(data,token):
     last_cr = data.rfind('\n',0,token.lexpos)
     if last_cr < 0:
         last_cr = 0
@@ -99,25 +99,39 @@ def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
+
 t_ignore  = ' \t'
 
 # Build the lexer
 lexer = lex.lex()
 
-# Test it out
-data = '''
-3 + 4 * 10
-    + -{548548}20 *2
-    array[0..9,0..1]
-    a=2.1
-a= 0aq
-'''
+def Lexical(filename):
+    # Build the lexer
+    lexer = lex.lex()
+    filename = filename + ".pas"
+    file = open(filename).readlines()
+    for i in file:
+        if len(i) > 1000:
+            print(f"Line {file.index(i)} too long")
+            exit()
+        else:
+            data = data + ''.join(i).lower()
+    # Give the lexer some input
+    lexer.input(data)
 
-# Give the lexer some input
-lexer.input(data)
 
-# Tokenize
-while True:
-    tok = lexer.token()
-    if not tok: break      # No more input
-    print (tok, tok.type, tok.value, tok.lineno, find_column(tok.value,tok))
+    # Tokenize
+    while True:
+        tok = lexer.token()
+        if not tok:
+                break      # No more input
+        else:
+            if find_column(data, tok) + len(tok.value) < 10000:
+                ans.append(tok)
+            else:
+                exit()
+
+
+ans = list()
+Lexical("08_add2")
+# print(ans)
