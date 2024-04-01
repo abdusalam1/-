@@ -1,5 +1,8 @@
 import ply.lex as lex
+#预处理
 
+
+#lex
 reserved = {
     'program': 'PROGRAM',
     'const': 'CONST',
@@ -28,61 +31,78 @@ reserved = {
     'readIn': 'READIN',
     'writeIn': 'WRITEIN',
     'not': 'NOT',
-    'integer': 'INTERGER',
+    'integer': 'INTEGER',
     'real': 'REAL',
     'boolean': 'BOOLEAN',
     'char': 'CHAR',
     'true': 'TRUE',
     'false': 'FALSE',
+    'div': 'MULOP',
+    'mod': 'MULOP',
+    'and': 'MULOP',
+    'or': 'ADDOP',
 }
 
 tokens = ['DIGITS','NUM','LETTERS','RELOP','ADDOP','MULOP','ID','ASSIGNOP','COMMENT','DOT'
           ] + list(reserved.values())
 
-literals = [';', '.', '(', ')', ',', ':', '[', ']', '\'', '=']
+literals = [';', '.', '(', ')', ',', ':', '[', ']','=']
 
-def t_DOT(t):
-    r'\.\.'
-    return t
-
-def t_ASSIGNOP(t):
-    r':='
-    return t
+t_COLON = r':'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
+t_COM = r','
+t_POINT = r'\.'
+t_DOT=r'\.\.'
+t_SEMICOLON = r';'
+t_ASSIGNOP=r':='
+t_LETTERS = r'\'[a-zA-Z]\''
+t_RELOP = r'<=|>=|<>|<|>'
+t_ADDOP = r'(?i)\+|-|OR'
+t_MULOP = r'(?i)\*|\/|DIV|MOD|AND'
+t_DIGITS=r'\d+'
 
 def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    r'[0-9a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value,'ID')    # Check for reserved words
-    return t
-
-def t_DIGITS(t):
-    r'\d+'
-    return t
-
-def t_LETTERS(t):
-    r"'[^'\n]'"
-    return t
-
-def t_RELOP(t):
-    r'>=|<=|<>|<|>'
-    return t
-
-def t_ADDOP(t):
-    r'\+|-'
-    return t
-
-def t_MULOP(t):
-    r'\*|/'
+    if t.value.isdigit():
+             t.type='DIGITS'
+    if(t.type=='ID'):
+        if len(t.value)>=20:
+             error.append({
+                        "code": "A-03",
+                        "info": {
+                            "line": t.lineno,
+                            "value": [t.value.split('\n')[0]],
+                            "lexpos": t.lexpos
+                        }
+                    })
+             t.value=t.value[:20]
+        if t.value[0].isdigit() :  # 出现ID以数字开头的错误
+                    error.append({
+                        "code": "A-01",
+                        "info": {
+                            "line": t.lineno,
+                            "value": [t.value.split('\n')[0]],
+                            "lexpos": t.lexpos
+                        }
+                    })
+                    while t.value[0].isdigit():
+                        t.value = t.value[1:]  # 错误恢复：如果ID首元素是数字，则去掉该数字
     return t
 
 def t_COMMENT(t):
     r'\{[^{}]*\}|//.*'
+    t.lexer.lineno += t.value.count('\n')
     pass
     # No return value. Token discarded
 
-# Define a rule so we can track line numbers while finding the error 101
+# Define a rule so we can track line numbers
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += len(t.value)
+    t.lexer.lineno += t.value.count('\n')
 
 # Compute column.
 # input is the input text string
@@ -96,9 +116,15 @@ def find_column(data,token):
 
 # Error handling rule
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1)
-
+            error.append({  # 不在已有错误中，则为词法分析中的非法字符错误
+                "code": "A-02",
+                "info": {
+                    "line": t.lineno,
+                    "value": [t.value.split('\n')[0]],
+                    "lexpos": t.lexpos
+                }
+            })
+            t.lexer.skip(1)  # 错误处理：跳过该错误
 
 t_ignore  = ' \t'
 
@@ -109,16 +135,12 @@ def Lexical(filename):
     # Build the lexer
     lexer = lex.lex()
     filename = filename + ".pas"
-    file = open(filename).readlines()
-    for i in file:
-        if len(i) > 1000:
-            print(f"Line {file.index(i)} too long")
-            exit()
-        else:
-            data = data + ''.join(i).lower()
+    data = '''
+     type 1aaaaaaaaaaaaaaaaaaaaa=1.2;
+     a='ab'
+'''
     # Give the lexer some input
     lexer.input(data)
-
 
     # Tokenize
     while True:
@@ -126,12 +148,13 @@ def Lexical(filename):
         if not tok:
                 break      # No more input
         else:
-            if find_column(data, tok) + len(tok.value) < 10000:
+            if find_column(data, tok)  < 1000:
                 ans.append(tok)
             else:
                 exit()
 
-
+error=[]
 ans = list()
 Lexical("08_add2")
-# print(ans)
+print(ans)
+print(error)
