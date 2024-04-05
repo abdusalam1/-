@@ -1,6 +1,10 @@
 import ply.yacc as yacc
-from lex import tokens
-
+import ply.lex as lex
+import sys
+from lex import Lexer
+lexi=Lexer()
+lexi.build()
+tokens=lexi.tokens
 def p_pascal_program(p):
     'pascal : programstruct'
 
@@ -14,7 +18,10 @@ def p_program_head_jusi_id(p):
     'program_head :  PROGRAM ID'
 
 def p_program_body(p):
-    '''program_body : const_declarations  var_declarations  subprogram_declarations compound_statement'''
+    '''program_body : const_declarations  
+                    var_declarations 
+                    subprogram_declarations 
+                    compound_statement'''
     
 def p_empty(p):
     'empty :'
@@ -28,6 +35,7 @@ def p_idlist_2(p):
 
 def p_const_declerations_empty(p):
     'const_declarations : empty'
+    p[0]=0
 
 def p_const_declerations(p):
     'const_declarations :  CONST const_declaration SEMICOLON'
@@ -161,7 +169,7 @@ def p_statement_func_assign(p):
 
 def p_func_id(p):
     'func_id : ID'
-    
+
 def p_statement_procedure_call(p):
     'statement : procedure_call'
     # 在这里处理过程调用语句的情况
@@ -279,7 +287,7 @@ def p_factor_not(p):
 
 def p_factor_addop(p):
     'factor : ADDOP factor'
-    # 处理一元加法运算符的情况
+    # 处理一元运算符的情况
 
     
 # 错误处理
@@ -287,5 +295,6 @@ def p_error(p):
     print("语法错误")
 
 # 建立语法分析器
+
 parser = yacc.yacc()
 
