@@ -8,33 +8,43 @@ tokens=lexi.tokens
 
 from AST_structure import *
 
-pscal=Program()
+pascal=Program()
 
 
 
 def p_programstruct(p):
     'programstruct : program_head SEMICOLON program_body POINT'
-    
+    pascal.subProgram=p[3]
 
 def p_program_head(p):
     'program_head : PROGRAM ID LPAREN idlist RPAREN '
-
+    pascal=Program(p[2],p.lineno(1),p[4])
 
 def p_program_head_jusi_id(p):
     'program_head :  PROGRAM ID'
+    pascal.programId=p[2]
+    pascal.line=p.lineno(1)
+ 
 
 def p_program_body(p):
     '''program_body : const_declarations   var_declarations  subprogram_declarations compound_statement'''
-    
+    p[0]=SubProgram()
+
 def p_empty(p):
     'empty :'
 
 
 def p_idlist(p):
-    'idlist : ID '
-    
-def p_idlist_2(p):
-    'idlist : idlist COM ID'
+    '''idlist : ID 
+            | idlist COM ID'''
+    if len(p)==1:
+        p[0][p[1]]=p.lineno(1)
+    else:
+        p[1][p[3]]=p.lineno(3)
+        p[0]=p[1]
+
+
+
 
 def p_const_declerations_empty(p):
     'const_declarations : empty'
