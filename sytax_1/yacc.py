@@ -5,23 +5,26 @@ from lex import Lexer
 lexi=Lexer()
 lexi.build()
 tokens=lexi.tokens
-def p_pascal_program(p):
-    'pascal : programstruct'
+
+from AST_structure import *
+
+pscal=Program()
+
+
 
 def p_programstruct(p):
     'programstruct : program_head SEMICOLON program_body POINT'
+    
 
 def p_program_head(p):
     'program_head : PROGRAM ID LPAREN idlist RPAREN '
+
 
 def p_program_head_jusi_id(p):
     'program_head :  PROGRAM ID'
 
 def p_program_body(p):
-    '''program_body : const_declarations  
-                    var_declarations 
-                    subprogram_declarations 
-                    compound_statement'''
+    '''program_body : const_declarations   var_declarations  subprogram_declarations compound_statement'''
     
 def p_empty(p):
     'empty :'
@@ -35,7 +38,7 @@ def p_idlist_2(p):
 
 def p_const_declerations_empty(p):
     'const_declarations : empty'
-    p[0]=0
+ 
 
 def p_const_declerations(p):
     'const_declarations :  CONST const_declaration SEMICOLON'
@@ -154,6 +157,7 @@ def p_statement_list(p):
 
 def p_statement_list_2(p):
     'statement_list :  statement_list SEMICOLON statement'
+
 
 def p_statement_empty(p):
     'statement : empty'
