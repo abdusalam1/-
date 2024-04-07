@@ -38,7 +38,9 @@ def p_idlist_2(p):
 
 def p_const_declerations_empty(p):
     'const_declarations : empty'
- 
+    p[0]={
+        
+    }
 
 def p_const_declerations(p):
     'const_declarations :  CONST const_declaration SEMICOLON'
@@ -58,7 +60,6 @@ def p_const_value_num(p):
 
 def p_const_value_letter(p):
     "const_value :  LETTERS "
-
 
 def p_num_fraction(p):
     'num : DIGITS fraction '
