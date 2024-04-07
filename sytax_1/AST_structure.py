@@ -56,8 +56,8 @@ class Type:
         self.type:str = ''       #基本类型，int、char、real、boolean
         self.line:int = 0        #行号
         self.arrFlag:bool= 0     #0不是数组，1是数组
-        self.lowerBound:int = 0  #数组下界
-        self.upperBound:int = 0  #数组上界
+        self.lowerBound:list[int] = 0  #数组下界（n维）
+        self.upperBound:list[int] = 0  #数组上界
 
 class FucDefn:
     """

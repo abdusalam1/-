@@ -1,7 +1,7 @@
 import ply.yacc as yacc
 import ply.lex as lex
 import sys
-from test import Lexer
+from lex import Lexer
 lexi=Lexer()
 lexi.build()
 tokens=lexi.tokens
@@ -60,9 +60,9 @@ class parser():
                     'line':p.lineno(3)
                 })
 
-def p_const_declerations_empty(p):
-    'const_declarations : empty'
- 
+    def p_const_declerations_empty(p):
+        'const_declarations : empty'
+        p[0]=p[1]
 
     def p_const_declerations(p):
         'const_declarations :  CONST const_declaration SEMICOLON'
@@ -106,18 +106,12 @@ def p_const_declerations_empty(p):
             'value':p[1] 
         }
 
-def p_const_value_letter(p):
-    "const_value :  LETTERS "
-
-
-def p_num_fraction(p):
-    'num : DIGITS fraction '
-
-def p_num_digit(p):
-    'num :  DIGITS'
-
-def p_fraction(p):
-    'fraction : POINT DIGITS'
+    def p_const_value_letter(p):
+        "const_value :  LETTERS "
+        p[0]={
+            'type':'str',
+            'value':p[1]
+        }
 
     def p_var_declarations(p):
         'var_declarations : VAR  var_declaration SEMICOLON'
@@ -133,27 +127,41 @@ def p_fraction(p):
 
     def p_type(p):
         'type : basic_type '
+        p[0]=Type(p[1],p.lineno(1),0)
 
     def p_type_array(p):
         'type :  ARRAY LBRACKET period RBRACKET OF basic_type'
+        p[0]=Type(p[6],p.lineno(1),1,p[3]['lowerBound'],p[3]['upperBound'])
 
     def p_basic_type_integer(p):
         'basic_type : INTEGER'
+        p[0]=p[1]
 
     def p_basic_type_real(p):
         'basic_type :  REAL '
+        p[0]=p[1]
 
     def p_basic_type_boolean(p):
         'basic_type : BOOLEAN '
+        p[0]=p[1]
 
     def p_basic_type_char(p):
         'basic_type : CHAR'
+        p[0]=p[1]
 
     def p_period(p):
         'period : DIGITS DOT DIGITS '
+        p[0]={
+            'lowerBound':[p[1]],
+            'upperBound':[p[3]]
+        }
 
-    def p_period_2(p):
+    def p_period_2(p):# 处理多维数组
         'period : period COM DIGITS DOT DIGITS'
+        p[0]={
+            'lowerBound':p[1]['lowerBound'].append(p[3]),
+            'upperBound':p[1]['upperBound'].append(p[5])
+        }
         
     def p_subprogram_declarations(p):
         'subprogram_declarations : subprogram_declarations subprogram SEMICOLON '
