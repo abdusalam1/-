@@ -1,3 +1,10 @@
+class SymbolTable:
+    def __init__(self):
+        self.area='' 
+        self.Constants={}#常量 常量名：{Constant}
+        self.Variants={} #变量 变量名：{Type}
+        self.subFuncs={} #函数 函数名：{SymbolTable}
+
 class Program:
     """
     主程序类
