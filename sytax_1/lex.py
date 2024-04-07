@@ -1,8 +1,6 @@
 import ply.lex as lex
 import sys
 #lex
-
-
 class Lexer:
     error=[]
     reserved = {
@@ -46,10 +44,10 @@ class Lexer:
             'and': 'MULOP',
             'or': 'ADDOP',
         }
+
     tokens = ['DIGITS','NUM','LETTERS','RELOP','ADDOP','MULOP','ID','ASSIGNOP','COMMENT','DOT','COLON','LBRACKET','RBRACKET','LPAREN','RPAREN',
                 'COM','POINT','SEMICOLON','EQUAL'
                 ] + list(reserved.values())
-
 
     t_EQUAL=r'='
     t_COLON = r':'
@@ -65,7 +63,6 @@ class Lexer:
     t_RELOP = r'<=|>=|<>|<|>'
     t_ADDOP = r'(?i)\+|-'
     t_MULOP = r'(?i)\*|\/'
-    t_DIGITS=r'\d+'
     def t_LETTERS(self,t):
                 r'\'[^\']*\'*'
                 t.value=t.value[1:] if len(t.value)!=1 else 'eof' #获取引号内内容
@@ -101,34 +98,43 @@ class Lexer:
                 else:
                     t.value=t.value[:-1]
                 return t
-        
+   #浮点数
+    def t_NUM(self,t):
+        r'\d+\.\d+'
+        t.value = float(t.value)
+        return t
+    #整数
+    def t_DIGITS(t):
+        r'\d+'
+        t.value = int(t.value)
+        return t
+    
     def t_ID(self,t):
-            r'[0-9a-zA-Z_][a-zA-Z_0-9]*'
-            t.type = dict(self.reserved, **self.reserved_2).get(t.value,'ID')    # Check for reserved words
-
-            if t.value.isdigit():
-                    t.type='DIGITS'
-            if(t.type=='ID'):
-                if len(t.value)>=20:
-                    self.error.append({
-                                "code": "A-03",
-                                "info": {
-                                    "line": t.lineno,
-                                    "value": [t.value.split('\n')[0]],
-                                    "lexpos": t.lexpos
-                                }
-                            })
-                    t.value=t.value[:20]
-                if t.value[0].isdigit() :  # 出现ID以数字开头的错误
-                            self.error.append({
-                                "code": "A-01",
-                                "info": {
-                                    "line": t.lineno,
-                                    "value": [t.value.split('\n')[0]],
-                                    "lexpos": t.lexpos
-                                }
-                            })
-                            while t.value[0].isdigit():
+        r'[0-9a-zA-Z_][a-zA-Z_0-9]*'
+        t.type = dict(self.reserved, **self.reserved_2).get(t.value,'ID')    # Check for reserved words
+        if t.value.isdigit():
+                t.type='DIGITS'
+        if(t.type=='ID'):
+            if len(t.value)>=20:
+                self.error.append({
+                            "code": "A-03",
+                            "info": {
+                                "line": t.lineno,
+                                "value": [t.value.split('\n')[0]],
+                               "lexpos": t.lexpos
+                            }
+                        })
+                t.value=t.value[:20]
+            if t.value[0].isdigit() :  # 出现ID以数字开头的错误
+                        self.error.append({
+                            "code": "A-01",
+                            "info": {
+                                "line": t.lineno,
+                                "value": [t.value.split('\n')[0]],
+                                "lexpos": t.lexpos
+                            }
+                        })
+                        while t.value[0].isdigit():
                                 t.value = t.value[1:]  # 错误恢复：如果ID首元素是数字，则去掉该数字
             return t
 
@@ -195,9 +201,8 @@ class Lexer:
         print(f"{'ERROR':^20}")
         for item in self.error:
              print(f"{item['code']!s:<10}  {item['info']['line']!s:<3} {item['info']['value']!s:<10}")
-
 if __name__ == '__main__':
      lexi=Lexer()
      lexi.build()
-    #  lexi.debug('lex_test\comment.pas',1)
+     lexi.debug('lex_test\comment.pas',1)
      #lexi.debug(sys.argv[1],1)
