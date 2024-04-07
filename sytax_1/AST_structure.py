@@ -1,11 +1,22 @@
+#符号表
+class SymbolTable:
+    def __init__(self):
+        self.area='' 
+        self.Constants={}#常量 常量名：{Constant}
+        self.Variants={} #变量 变量名：{Type}
+        self.subFuncs={} #函数 函数名：{SymbolTable}
+
+#语法树 
+
+
 class Program:
     """
     主程序类
     """
-    def __init__(self):
-        self.programId:str = ''#程序标题声明名
-        self.line:int = 0      #程序标题行号
-        self.paraDict:dict = {}#标识符字典 string:int 名称：行号
+    def __init__(self,a,b,c):
+        self.programId:str = a#程序标题声明名
+        self.line:int = b      #程序标题行号
+        self.paraDict:dict = c #参数标识符:行号
         self.subProgram:SubProgram = SubProgram()
 class SubProgram:
     """
