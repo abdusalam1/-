@@ -1,4 +1,4 @@
-    def p_subprogram_declarations(p):
+     def p_subprogram_declarations(p):
         'subprogram_declarations : subprogram_declarations subprogram SEMICOLON '
         # 标志不在子函数中
         self.inSubFun = False
