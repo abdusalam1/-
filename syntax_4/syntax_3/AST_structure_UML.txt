@@ -1,0 +1,166 @@
+@startuml
+class SymbolTable {
+        __init__()
+}
+class Program {
+        programId : str 
+    line : int 
+    paraDict : dict 
+    subProgram : SubProgram 
+    __init__(programId: str , line: int , paraDict: dict , subProgram: SubProgram )
+}
+class SubProgram {
+        constList : list[Constant] 
+    varList : list[Variant] 
+    subDefList : list[FucDefn]  
+    block : Compound 
+    __init__(constList: list[Constant] , varList: list[Variant] , subDefList: list[FucDefn]  , block: Compound )
+}
+class Constant {
+        constId : str 
+    line : int 
+    type : str 
+    charValue : str 
+    intValue : int 
+    realValue : float 
+    __init__(constId: str , line: int , type: str , charValue: str , intValue: int , realValue: float )
+}
+class Variant {
+        varId : str 
+    type : Type 
+    __init__(varId: str , type: Type )
+}
+class Type {
+        type : str 
+    line : int 
+    arrFlag : bool
+    lowerBound : int 
+    upperBound : int 
+    __init__(type: str , line: int , arrFlag: bool, lowerBound: int , upperBound: int )
+}
+class FucDefn {
+        fucId : str 
+    line : int 
+    formalParaList : list[FormalParameter]  
+    type : str 
+    constList : list[Constant] 
+    varList : list[Variant] 
+    block : Compound 
+    __init__(fucId: str , line: int , formalParaList: list[FormalParameter]  , type: str , constList: list[Constant] , varList: list[Variant] , block: Compound )
+}
+class FormalParameter {
+        paraId : str 
+    line : int  
+    type : str 
+    flag : bool 
+    __init__(paraId: str , line: int  , type: str , flag: bool )
+}
+class Expression {
+        type : str 
+    line : int 
+    varRef : VarReference 
+    intNum : int 
+    realNum : float 
+    strOfNum : str 
+    charVal : str 
+    fucCall : FucCall 
+    operation : str 
+    opType : str 
+    subE1 : Expression 
+    subE2 : Expression 
+    __init__(type: str , line: int , varRef: VarReference , intNum: int , realNum: float , strOfNum: str , charVal: str , fucCall: FucCall , operation: str , opType: str , subE1: Expression , subE2: Expression )
+}
+class FucCall {
+        fucId : str 
+    line : int 
+    actParaList : list[Expression] 
+    __init__(fucId: str , line: int , actParaList: list[Expression] )
+}
+class VarReference {
+        varId : str 
+    line : int 
+    expList : list[Expression] 
+    flag : bool 
+    __init__(varId: str , line: int , expList: list[Expression] , flag: bool )
+}
+class Statement {
+        line : int 
+    type : str 
+    stateType : str 
+    __init__(line: int , type: str , stateType: str )
+}
+class Assign {
+        varRef : VarReference 
+    exp : Expression 
+    __init__(varRef: VarReference , exp: Expression )
+}
+class If {
+        condition : Expression 
+    then : Statement 
+    els : Statement 
+    __init__(condition: Expression , then: Statement , els: Statement )
+}
+class While {
+        condition : Expression 
+    do : Statement 
+    __init__(condition: Expression , do: Statement )
+}
+class For {
+        id : str 
+    state : Expression 
+    end : Expression 
+    do : Statement 
+    __init__(id: str , state: Expression , end: Expression , do: Statement )
+}
+class Repeat {
+        condition : Expression 
+    do : Statement 
+    __init__(condition: Expression , do: Statement )
+}
+class Compound {
+        statements : list[Statement] 
+    __init__(statements: list[Statement] )
+}
+class ProcCall {
+        procId : str 
+    actParaList : list[Expression] 
+    __init__(procId: str , actParaList: list[Expression] )
+}
+Program --> SubProgram
+SubProgram --> Constant
+SubProgram --> Variant
+SubProgram --> FucDefn
+SubProgram --> Compound
+Variant --> Type
+FucDefn --> FormalParameter
+FucDefn --> Constant
+FucDefn --> Variant
+FucDefn --> Compound
+Expression --> VarReference
+Expression --> FucCall
+Expression --> Expression
+Expression --> Expression
+FucCall --> Expression
+VarReference --> Expression
+Statement <|-- Assign
+Assign --> VarReference
+Assign --> Expression
+Statement <|-- If
+If --> Expression
+If --> Statement
+If --> Statement
+Statement <|-- While
+While --> Expression
+While --> Statement
+Statement <|-- For
+For --> Expression
+For --> Expression
+For --> Statement
+Statement <|-- Repeat
+Repeat --> Expression
+Repeat --> Statement
+Statement <|-- Compound
+Compound --> Statement
+Statement <|-- ProcCall
+ProcCall --> Expression
+@enduml
