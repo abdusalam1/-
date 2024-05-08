@@ -11,13 +11,13 @@ class CodeGenerator:
     f_stdio = False#头文件标志
     def __init__(self):
         self.targetCode = ''
-        self.domain = []
+        #self.domain = []
         self.headFile = ''
         self.globalCode = ''
         self.f_stdio = False
         self.ast = Program()
-        self.varT = None
-        self.mainFucDef:str = 'main'#主函数接口声明 
+        #self.varT = None
+        #self.mainFucDef:str = 'main'#主函数接口声明 
         self.fucDefList:list[SubFucDef] = []#子函数接口列表 void subFuc1();
         self.fucList:list[SubFuc] = []#子函数定义列表 void subFuc1() {};
         
@@ -363,5 +363,8 @@ class SubFuc:
         pass
 
 
-
+if __name__ == '__main__':
+    codeg = CodeGenerator()
+    codeg.ast = Program()
+    codeg.anaAst()
         
