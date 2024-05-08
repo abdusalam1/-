@@ -146,6 +146,7 @@ class CodeGenerator:
                 self.fucDefList.append(fuc1)#子函数接口声明完成
                 fuc2 = SubFuc()#子函数定义
                 fuc2.id = f.fucId
+                self.genDef(f,fuc2)#定义子函数的变量常量
                 pblock = f.block
                 #处理子程序代码块
                 self.genCompound(pblock,fuc2,1)#程序代码块缩进为1
