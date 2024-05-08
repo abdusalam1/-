@@ -37,10 +37,11 @@ class CodeGenerator:
         """
         pass
     
-    def genGlobalDef(self,fuc:SubFuc):
+    def genGlobalDef(self,fuc):
         """
         输出全局变量定义
         """
+        #fuc:SubFuc
         for i in len(fuc.constIdList):
             id = fuc.constIdList[i]
             type = fuc.constTypeList[i]
@@ -180,7 +181,8 @@ class CodeGenerator:
                 pass
             else:
                 self.genStatement(s,fuc,back)
-    def genStatement(self,statemnt:Statement,fuc:SubFuc,back):
+    def genStatement(self,statemnt:Statement,fuc,back):
+        #fuc:SubFuc
         s:Statement = statemnt
         if s.type == 'compound':
             self.genCompound(s.block,fuc,back)
@@ -209,7 +211,7 @@ class CodeGenerator:
             }
             """
         elif s.type == 'for':
-            line = ''+'for('+self.genExpr(s.state)+';'+self.genExpr(s.end)+';'+self.genExpr(s.step)+'){'
+            line = ''+'for('+self.genExpr(s.state)+';'+self.genExpr(s.end)+';'+self.genExpr(s.id)+'++){'
             fuc.statements.append(line)
             fuc.back.append(back)
             self.genCompound(s.do,fuc,back+1)
@@ -270,7 +272,7 @@ class CodeGenerator:
             """
             pass
         pass
-    def genDef(self,pfuc:SubProgram,cfuc:SubFuc):#生成函数定义的常量与变量定义
+    def genDef(self,pfuc:SubProgram,cfuc):#生成函数定义的常量与变量定义
         for n in pfuc.constList['constant'] :
             cfuc.constIdList.append(n.constId)
             cfuc.constTypeList.append(n.type)
