@@ -61,15 +61,19 @@ class CodeGenerator:
                 j = fuc.arr.index(id)
                 low = fuc.arrl[j]
                 up = fuc.arru[j]
-                len1 = up - low + 1
                 if type == 'int' :
-                    self.globalCode += 'int ' + id + '[' + str(len1) + '];\n'
+                    self.globalCode += 'int ' + id 
                 elif type == 'char' :
-                    self.globalCode += 'char ' + id + '[' + str(len1) + '];\n'
+                    self.globalCode += 'char ' + id 
                 elif type == 'boolen' :
-                    self.globalCode += 'bool ' + id + '[' + str(len1) + '];\n'
+                    self.globalCode += 'bool ' + id 
                 else :
-                    self.globalCode += 'float ' + id + '[' + str(len1) + '];\n'
+                    self.globalCode += 'float ' + id 
+                for k in len(low):
+                    len1 = up[k] - low[k] + 1
+                    self.globalCode += '[' + str(len1) + ']'    
+                self.globalCode += ';\n'
+                
                 
             else :
                 if type == 'int' :
@@ -306,8 +310,8 @@ class SubFucDef:
         self.paraIsRef:list[bool] =[]#参数是否引用
         self.paraType:list[str] = [] #参数类型
         self.arr:list = []#是否是数组
-        self.arrl:list = []#数组下界
-        self.arru:list = []#数组上界
+        self.arrl:list = []#数组下界[  [1,2] [2]         ]
+        self.arru:list = []#数组上界[  [3,4] [7]         ]
     
     def __str__(self):
         s=''

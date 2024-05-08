@@ -1,2 +1,2 @@
-class VarTable:
+# class VarTable:
     
